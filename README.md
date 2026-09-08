@@ -94,4 +94,4 @@ Línea 3: y <- 20
 
 ## Autores
 
-Desarrollado como proyecto académico de construcción de compiladores.
+Abel Pineda Godinez
