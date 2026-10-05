@@ -27,7 +27,8 @@ CONTENEDOR = r"c\("
 #double
 NUM = r"-?[0-9]+(?:\.[0-9]+)?"#Se le agrega ?: para que re.findall reciba correctamente strings y no tuplas
 #Identificador de variables
-IDENTIFICADOR = r"[a-zA-Z]{1}[a-z_A-Z.0-9]*"
+IDENTIFICADOR = r"[a-zA-Z_]{1}[a-z_A-Z.0-9]*"
+
 
 
 # if\s*\(\s*([a-zA-Z_]{1}[a-zA-Z_0-9]*|[0-9]+)\s*(==|>=|<=|!=|<|>)\s*([a-zA-Z_]{1}[a-zA-Z_0-9]*|[0-9]+)\s*(\s+(\|\||\&\&)\s+([a-zA-Z_]{1}[a-zA-Z_0-9]*|[0-9]+)\s*(==|>=|<=|!=|<|>)\s*([a-zA-Z_]{1}[a-zA-Z_0-9]*|[0-9]+)\s*)?\)\s*

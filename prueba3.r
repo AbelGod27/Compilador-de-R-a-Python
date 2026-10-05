@@ -5,3 +5,6 @@ c=a+b
 d=c-2
 variable sin_asignacion
 =mal_inicio
+ifn
+123vfd = =
+$$

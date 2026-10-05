@@ -1,0 +1,49 @@
+Línea 1: # comentario correcto
+  Token: # comentario correcto → Tipo: COMENTARIO
+
+Línea 2: a=10
+  Token: a → Tipo: IDENTIFICADOR
+  Token: = → Tipo: ASIGNACION
+  Token: 10 → Tipo: NUMERO
+
+Línea 3: b=-5
+  Token: b → Tipo: IDENTIFICADOR
+  Token: = → Tipo: ASIGNACION
+  Token: - → Tipo: ARITMETICO
+  Token: 5 → Tipo: NUMERO
+
+Línea 4: c=a+b
+  Token: c → Tipo: IDENTIFICADOR
+  Token: = → Tipo: ASIGNACION
+  Token: a → Tipo: IDENTIFICADOR
+  Token: + → Tipo: ARITMETICO
+  Token: b → Tipo: IDENTIFICADOR
+
+Línea 5: d=c-2
+  Token: d → Tipo: IDENTIFICADOR
+  Token: = → Tipo: ASIGNACION
+  Token: c → Tipo: IDENTIFICADOR
+  Token: - → Tipo: ARITMETICO
+  Token: 2 → Tipo: NUMERO
+
+Línea 6: variable sin_asignacion
+  Token: variable → Tipo: IDENTIFICADOR
+  Token: sin_asignacion → Tipo: IDENTIFICADOR
+
+Línea 7: =mal_inicio
+  Token: = → Tipo: ASIGNACION
+  Token: mal_inicio → Tipo: IDENTIFICADOR
+
+Línea 8: ifn
+  Token: ifn → Tipo: IDENTIFICADOR
+
+Línea 9: 123vfd = =
+  Token: 123 → Tipo: NUMERO
+  Token: vfd → Tipo: IDENTIFICADOR
+  Token: = → Tipo: ASIGNACION
+  Token: = → Tipo: ASIGNACION
+
+Línea 10: $$
+  Token: $ → Tipo: DESCONOCIDO
+  Token: $ → Tipo: DESCONOCIDO
+
