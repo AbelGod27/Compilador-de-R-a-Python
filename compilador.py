@@ -2,7 +2,7 @@ import re
 from regex import *
 from lexer import identificar
 
-regex_espacio = (
+regex_tokens = (
     f"{COMENTARIO}|{CADENA}|{PA_RESERVADA}|{FUNCIONES_RESERVADAS}|{CONTENEDOR}|{OP_ASIGNACION}|"
     f"{OP_COMPARACION}|{OP_ARITMETICOS}|{P_INICIAL}|{P_FINAL}|"
     f"{COR_INICIAL}|{COR_FINAL}|{LLAVE_INICIAL}|{LLAVE_FINAL}|{COMA}|"
@@ -14,7 +14,7 @@ regex_espacio = (
 def tokenizar(linea):
     if not linea.strip(): #Verifica si una cadena está vacía o no, si lo es, retorna un token vacío
         return []
-    tokens = re.findall(regex_espacio, linea)#findall busca coincidencias entre el gerex grande y la linea
+    tokens = re.findall(regex_tokens, linea)#findall busca coincidencias entre el gerex grande y la linea
     resultado = []
     for texto in tokens:
         if isinstance(texto, str):
