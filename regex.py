@@ -1,16 +1,20 @@
 #Comentarios
 COMENTARIO = r"#[^\n\r]*"
 #string
-CADENA = r'"[^"]*"' #Se cambió las comillas dobles habituales por comillas simples
-#Palabras reservadas
-PA_RESERVADA = r"\b(?:if|else|for|in|return|length|function|print)\b" 
+CADENA = r'"[^"]*"' #Las comillas simples delimitan el string en Python
+
 #La b es para detectar unicamente palabras completas
+#Palabras reservadas
+PA_RESERVADA = r"\b(?:if|else|for|in|return|function)\b"
+#Funciones reservadas
+FUNCIONES_RESERVADAS = r"\b(?:length|print)\b"
+
 #Operador de asignacion
 OP_ASIGNACION = r"<-|=(?!=)"
 #Simbolos de comparacion
 OP_COMPARACION = r"<=|>=|!=|==|<|>"
 #Expresiones aritmeticas
-EXPRESIONES_ARITMETICAS = r"\+|\-|\*|\/:"
+EXPRESIONES_ARITMETICAS = r"\+|\-|\*|\/"
 #Parentesis
 P_INICIAL = r"\("
 P_FINAL = r"\)"
@@ -25,10 +29,7 @@ COMA = r","
 #Contenedores - Arreglos 
 CONTENEDOR = r"c\("
 #double
-NUM = r"-?[0-9]+(?:\.[0-9]+)?"#Se le agrega ?: para que re.findall reciba correctamente strings y no tuplas
+NUM = r"[0-9]+(?:\.[0-9]+)?"#Se le agrega ?: para que re.findall reciba correctamente strings y no tuplas
 #Identificador de variables
 IDENTIFICADOR = r"[a-zA-Z_]{1}[a-z_A-Z.0-9]*"
 
-
-
-# if\s*\(\s*([a-zA-Z_]{1}[a-zA-Z_0-9]*|[0-9]+)\s*(==|>=|<=|!=|<|>)\s*([a-zA-Z_]{1}[a-zA-Z_0-9]*|[0-9]+)\s*(\s+(\|\||\&\&)\s+([a-zA-Z_]{1}[a-zA-Z_0-9]*|[0-9]+)\s*(==|>=|<=|!=|<|>)\s*([a-zA-Z_]{1}[a-zA-Z_0-9]*|[0-9]+)\s*)?\)\s*

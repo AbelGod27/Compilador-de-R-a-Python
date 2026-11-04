@@ -8,6 +8,8 @@ def identificar(token):
         return "CADENA"
     elif re.fullmatch(PA_RESERVADA, token): 
         return "PALABRA_RESERVADA"
+    elif re.fullmatch(FUNCIONES_RESERVADAS, token):
+        return "FUNCION_RESERVADA"
     elif re.fullmatch(CONTENEDOR, token): 
         return "CONTENEDOR"
     elif re.fullmatch(OP_ASIGNACION, token): 

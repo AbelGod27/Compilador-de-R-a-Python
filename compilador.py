@@ -3,7 +3,7 @@ from regex import *
 from lexer import identificar
 
 regex_espacio = (
-    f"{COMENTARIO}|{CADENA}|{PA_RESERVADA}|{CONTENEDOR}|{OP_ASIGNACION}|"
+    f"{COMENTARIO}|{CADENA}|{PA_RESERVADA}|{FUNCIONES_RESERVADAS}|{CONTENEDOR}|{OP_ASIGNACION}|"
     f"{OP_COMPARACION}|{EXPRESIONES_ARITMETICAS}|{P_INICIAL}|{P_FINAL}|"
     f"{COR_INICIAL}|{COR_FINAL}|{LLAVE_INICIAL}|{LLAVE_FINAL}|{COMA}|"
     f"{NUM}|{IDENTIFICADOR}|\\S" #Al leer la línea de codigo, lo que hace es coincidir el texto de izquierda a derecha
