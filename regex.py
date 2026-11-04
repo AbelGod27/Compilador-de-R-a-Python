@@ -13,8 +13,8 @@ FUNCIONES_RESERVADAS = r"\b(?:length|print)\b"
 OP_ASIGNACION = r"<-|=(?!=)"
 #Simbolos de comparacion
 OP_COMPARACION = r"<=|>=|!=|==|<|>"
-#Expresiones aritmeticas
-EXPRESIONES_ARITMETICAS = r"\+|\-|\*|\/"
+#Operadores aritmeticos
+OP_ARITMETICOS = r"\+|\-|\*|\/"
 #Parentesis
 P_INICIAL = r"\("
 P_FINAL = r"\)"
@@ -26,7 +26,7 @@ LLAVE_INICIAL = r"\{"
 LLAVE_FINAL = r"\}"
 #Coma
 COMA = r","
-#Contenedores - Arreglos 
+#Contenedores - Arreglos
 CONTENEDOR = r"c\("
 #double
 NUM = r"[0-9]+(?:\.[0-9]+)?"#Se le agrega ?: para que re.findall reciba correctamente strings y no tuplas

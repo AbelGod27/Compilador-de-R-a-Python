@@ -16,7 +16,7 @@ def identificar(token):
         return "ASIGNACION"
     elif re.fullmatch(OP_COMPARACION, token): 
         return "COMPARACION"
-    elif re.fullmatch(EXPRESIONES_ARITMETICAS, token): 
+    elif re.fullmatch(OP_ARITMETICOS, token): 
         return "ARITMETICO"
     elif re.fullmatch(P_INICIAL, token): 
         return "PARENTESIS_APERTURA"

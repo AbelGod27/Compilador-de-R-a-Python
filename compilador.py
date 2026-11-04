@@ -4,7 +4,7 @@ from lexer import identificar
 
 regex_espacio = (
     f"{COMENTARIO}|{CADENA}|{PA_RESERVADA}|{FUNCIONES_RESERVADAS}|{CONTENEDOR}|{OP_ASIGNACION}|"
-    f"{OP_COMPARACION}|{EXPRESIONES_ARITMETICAS}|{P_INICIAL}|{P_FINAL}|"
+    f"{OP_COMPARACION}|{OP_ARITMETICOS}|{P_INICIAL}|{P_FINAL}|"
     f"{COR_INICIAL}|{COR_FINAL}|{LLAVE_INICIAL}|{LLAVE_FINAL}|{COMA}|"
     f"{NUM}|{IDENTIFICADOR}|\\S" #Al leer la línea de codigo, lo que hace es coincidir el texto de izquierda a derecha
     #El \\S es para encontrar los DESCONOCIDO
@@ -26,21 +26,18 @@ def tokenizar(linea):
                 resultado.append(valor)
     return resultado
 
-def procesar_archivo(entrada, salida):
-    with open(entrada, "r", encoding="utf-8") as doc_entrada, open(salida, "w", encoding="utf-8") as doc_salida:
-        for num_linea, linea in enumerate(doc_entrada, start=1):
-            tokens = tokenizar(linea)
-            if tokens: #En caso de no haber tokens, el if no se activa
-                doc_salida.write(f"Línea {num_linea}: {linea.strip()}\n")
-                for texto in tokens:
-                    tipo = identificar(texto)
-                    doc_salida.write(f"  Token: {texto} → Tipo: {tipo}\n")
-                doc_salida.write("\n")
+class ErrorLexico(Exception):
+    #Se lanza al encontrar un caracter desconocido, detiene la compilacion
+    pass
 
-
-if __name__ == "__main__":
-    entrada = input("Ingrese el nombre del archivo a traspilar: ")
-    nombre_base = entrada.rsplit(".", 1)[0] if "." in entrada else entrada
-    salida = nombre_base + "_resultado.txt"
-    procesar_archivo(entrada, salida)
-    print(f"Procesamiento completo. Revisa {salida}")
+def obtener_tokens(entrada):
+    lista = []
+    with open(entrada, "r", encoding="utf-8") as doc:
+        for num_linea, linea in enumerate(doc, start=1):
+            for texto in tokenizar(linea):
+                tipo = identificar(texto)
+                if tipo == "DESCONOCIDO":
+                    raise ErrorLexico(f"Error léxico en línea {num_linea}: carácter desconocido '{texto}'")
+                if tipo != "COMENTARIO":          # el parser no los necesita
+                    lista.append((tipo, texto, num_linea))
+    return lista
