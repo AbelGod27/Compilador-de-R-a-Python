@@ -3,14 +3,14 @@ COMENTARIO = r"#[^\n\r]*"
 #string
 CADENA = r'"[^"]*"' #Se cambió las comillas dobles habituales por comillas simples
 #Palabras reservadas
-PA_RESERVADA = r"\b(?:if|for|in|return|length|function|print)\b" 
+PA_RESERVADA = r"\b(?:if|else|for|in|return|length|function|print)\b" 
 #La b es para detectar unicamente palabras completas
 #Operador de asignacion
-OP_ASIGNACION = r"<-|="
+OP_ASIGNACION = r"<-|=(?!=)"
 #Simbolos de comparacion
 OP_COMPARACION = r"<=|>=|!=|==|<|>"
 #Expresiones aritmeticas
-EXPRESIONES_ARITMETICAS = r"\+|\-|\*|\/"
+EXPRESIONES_ARITMETICAS = r"\+|\-|\*|\/:"
 #Parentesis
 P_INICIAL = r"\("
 P_FINAL = r"\)"
