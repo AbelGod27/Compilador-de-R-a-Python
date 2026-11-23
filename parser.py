@@ -9,7 +9,8 @@ class ErrorSintactico(Exception):
 #Acceso a un elemento: v[1] o v[i]
 ACCESO = r"IDENTIFICADOR CORCHETE_APERTURA (?:NUMERO|IDENTIFICADOR) CORCHETE_CIERRE"
 #Son los valores que se pueden repetir
-VALOR = rf"(?:{ACCESO}|NUMERO|IDENTIFICADOR|CADENA)"
+#LLAMADA_INTERNA es una llamada dentro de otra, ya reducida a un solo valor: print( length( v ) )
+VALOR = rf"(?:{ACCESO}|NUMERO|IDENTIFICADOR|CADENA|LLAMADA_INTERNA)"
 #Termino: un valor o una expresion entre parentesis, por ejemplo a o ( a + b )
 #Un regex no puede contar parentesis, por eso se construye por niveles: se aceptan hasta 3 parentesis anidados
 TERMINO = VALOR
@@ -20,16 +21,18 @@ for _ in range(3):
 #Tambien acepta una expresion sola entre parentesis: ( a + b )
 EXPR = rf"(?:\-? ?{TERMINO}(?: [+\-*/] \-? ?{TERMINO})+|\-? ?{GRUPO})"
 #Contenedor: c(valor, valor, ..., valor_n), el ? al final del grupo permite un contenedor vacío
-LISTA = rf"CONTENEDOR(?: {VALOR}(?: COMA {VALOR})*)? PARENTESIS_CIERRE"
+#Cada elemento puede ser negativo: c(1, -2, -x)
+ELEMENTO = rf"(?:- )?{VALOR}"
+LISTA = rf"CONTENEDOR(?: {ELEMENTO}(?: COMA {ELEMENTO})*)? PARENTESIS_CIERRE"
 #Llave opcional al final de if, else, for y function
 ABRE = r"(?: LLAVE_APERTURA)?"
-#Condicion: ( valor comparacion valor )
-COND = rf"PARENTESIS_APERTURA {VALOR} COMPARACION {VALOR} PARENTESIS_CIERRE"
 #Parametros de una funcion: ( ), ( a ), ( a , b )
 PARAMS = r"(?: IDENTIFICADOR(?: COMA IDENTIFICADOR)*)?"
 #Argumentos de una llamada: ( ), ( 2 ), ( a , b + 1 )
 ARG = rf"(?:{EXPR}|\-? ?{VALOR})"
 ARGS = rf"(?: {ARG}(?: COMA {ARG})*)?"
+#Condicion: ( valor comparacion valor ), cada lado puede ser una operacion: ( x + 1 > y * 2 )
+COND = rf"PARENTESIS_APERTURA {ARG} COMPARACION {ARG} PARENTESIS_CIERRE"
 #Llamada a una funcion propia: sumar ( 2 , 3 )
 LLAMADA = rf"IDENTIFICADOR PARENTESIS_APERTURA{ARGS} PARENTESIS_CIERRE"
 
@@ -40,16 +43,16 @@ TIPOS_LINEA = [
     ("ASIGNACION_NUM_NEGATIVO", r"IDENTIFICADOR ASIGNACION - NUMERO"), #valor = -12
     ("ASIGNACION_CADENA",       r"IDENTIFICADOR ASIGNACION CADENA"), #valor = "hola"
     ("ASIGNACION_VARIABLE",     r"IDENTIFICADOR ASIGNACION IDENTIFICADOR"), #valor1 = valor2
-    ("ASIGNACION_VAR_NEGATIVA", rf"IDENTIFICADOR ASIGNACION - (?:{ACCESO}|IDENTIFICADOR)"), #valor1 = -valor2
+    ("ASIGNACION_VAR_NEGATIVA", rf"IDENTIFICADOR ASIGNACION - (?:{ACCESO}|IDENTIFICADOR|LLAMADA_INTERNA)"), #valor1 = -valor2 o x <- -length(v)
     ("ASIGNACION_ACCESO",       rf"IDENTIFICADOR ASIGNACION {ACCESO}"), #valor = valor1[2]
     ("ASIGNACION_CONTENEDOR",   rf"IDENTIFICADOR ASIGNACION {LISTA}"), #valor = c(1,2,3)
     ("ASIGNACION_EXPRESION",    rf"IDENTIFICADOR ASIGNACION {EXPR}"), #resultado <- edad + 10
-    ("ASIGNACION_FUNCION",      rf"IDENTIFICADOR ASIGNACION FUNCION_RESERVADA PARENTESIS_APERTURA {VALOR} PARENTESIS_CIERRE"), #n <- length ( v )
+    ("ASIGNACION_FUNCION",      rf"IDENTIFICADOR ASIGNACION FUNCION_RESERVADA PARENTESIS_APERTURA {ARG} PARENTESIS_CIERRE"), #n <- length ( v )
     ("ASIGNACION_LLAMADA",      rf"IDENTIFICADOR ASIGNACION {LLAMADA}"), #r <- sumar ( 2 , 3 )
     ("ASIGNACION_ELEMENTO",     rf"{ACCESO} ASIGNACION {ARG}"), #v[1] <- 5
     #Funciones
     ("DEFINICION_FUNCION",      rf"IDENTIFICADOR ASIGNACION function PARENTESIS_APERTURA{PARAMS} PARENTESIS_CIERRE{ABRE}"), #saludo <- function (parametro)
-    ("LLAMADA_FUNCION",         rf"FUNCION_RESERVADA PARENTESIS_APERTURA(?: {VALOR})? PARENTESIS_CIERRE"), #print( x ) o print( )
+    ("LLAMADA_FUNCION",         rf"FUNCION_RESERVADA PARENTESIS_APERTURA{ARGS} PARENTESIS_CIERRE"), #print( x ), print( ) o print( t + 2 )
     ("LLAMADA_PROPIA",          LLAMADA), #sumar ( 2 , 3 )
     ("RETORNO",                 rf"return PARENTESIS_APERTURA(?: {ARG})? PARENTESIS_CIERRE"), #return (total)
     #Condicionales
@@ -74,8 +77,30 @@ def firma(tokens):
             partes.append(tipo)
     return " ".join(partes) #Une las partes en un texto separado por espacios para compararlo con el regex
 
+#Una llamada a funcion (reservada o propia) que puede estar dentro de otra expresion
+LLAMADA_CUALQUIERA = rf"(?<!\S)(?:FUNCION_RESERVADA|IDENTIFICADOR) PARENTESIS_APERTURA{ARGS} PARENTESIS_CIERRE"
+#Una llamada es interna si antes tiene ( , un operador, una comparacion o in, o si despues tiene un operador
+ANTES_INTERNA = {"PARENTESIS_APERTURA", "COMA", "+", "-", "*", "/", "COMPARACION", "in"}
+DESPUES_INTERNA = {"+", "-", "*", "/", "COMPARACION"}
+
+def reducir_llamadas(f):
+    #Reemplaza cada llamada interna por LLAMADA_INTERNA, de adentro hacia afuera:
+    #print ( length ( v ) )  ->  print ( LLAMADA_INTERNA )
+    #Se repite porque al reducir una llamada, la de afuera ya puede coincidir con el regex
+    def reemplazar(m):
+        antes = f[:m.start()].split()[-1:]
+        despues = f[m.end():].split()[:1]
+        if (antes and antes[0] in ANTES_INTERNA) or (despues and despues[0] in DESPUES_INTERNA):
+            return "LLAMADA_INTERNA"
+        return m.group(0)
+    while True:
+        nueva = re.sub(LLAMADA_CUALQUIERA, reemplazar, f)
+        if nueva == f:
+            return f
+        f = nueva
+
 def clasificar(tokens):
-    f = firma(tokens)
+    f = reducir_llamadas(firma(tokens))
     for nombre, patron in TIPOS_LINEA:
         if re.fullmatch(patron, f):
             return nombre
@@ -174,17 +199,39 @@ class Estructura:
             _, linea_abre, _ = self.pila[-1]
             self.error(linea_abre, "la '{' abierta en esta línea nunca se cierra")
 
+def dividir_por_llaves(toks):
+    #Separa una linea con un bloque completo en partes que se revisan por separado:
+    #if ( x > 1 ) { print ( x ) }  ->  [if ( x > 1 ) {]  [print ( x )]  [}]
+    #Se corta despues de cada { y antes de cada } (asi } else { se queda junto)
+    partes = []
+    actual = []
+    for tok in toks:
+        if tok[0] == "LLAVE_CIERRE" and actual:
+            partes.append(actual)
+            actual = []
+        actual.append(tok)
+        if tok[0] == "LLAVE_APERTURA":
+            partes.append(actual)
+            actual = []
+    if actual:
+        partes.append(actual)
+    return partes
+
 def analizar(entrada):
     #Regresa una lista de (num_linea, tipo_linea, tokens)
     resultado = []
     estructura = Estructura()
-    for num_linea, toks in agrupar_por_linea(obtener_tokens(entrada)).items():
-        tipo = clasificar(toks)
-        if tipo == "ERROR_SINTACTICO":
-            codigo = " ".join(t[1] for t in toks)
-            raise ErrorSintactico(f"Error sintáctico en línea {num_linea}: '{codigo}'")
-        estructura.revisar(num_linea, tipo, toks)
-        resultado.append((num_linea, tipo, toks))
+    tokens = obtener_tokens(entrada)
+    if not tokens:
+        raise ErrorSintactico("Error sintáctico: el archivo está vacío, no tiene código para analizar")
+    for num_linea, toks_linea in agrupar_por_linea(tokens).items():
+        for toks in dividir_por_llaves(toks_linea):
+            tipo = clasificar(toks)
+            if tipo == "ERROR_SINTACTICO":
+                codigo = " ".join(t[1] for t in toks)
+                raise ErrorSintactico(f"Error sintáctico en línea {num_linea}: '{codigo}'")
+            estructura.revisar(num_linea, tipo, toks)
+            resultado.append((num_linea, tipo, toks))
     estructura.terminar()
     return resultado
 
@@ -193,6 +240,9 @@ if __name__ == "__main__":
     entrada = input("Ingrese el nombre del archivo a analizar: ")
     try:
         resultado = analizar(entrada)
+    except FileNotFoundError:
+        print(f"Error: no se encontró el archivo '{entrada}'. Revisa que el nombre y la carpeta estén bien escritos")
+        sys.exit(1)
     except (ErrorLexico, ErrorSintactico) as e:
         print(e)
         sys.exit(1)

@@ -29,7 +29,8 @@ COMA = r","
 #Contenedores - Arreglos
 CONTENEDOR = r"c\("
 #double
-NUM = r"[0-9]+(?:\.[0-9]+)?"#Se le agrega ?: para que re.findall reciba correctamente strings y no tuplas
+NUM = r"[0-9]+(?:\.[0-9]+)?|\.[0-9]+"#Se le agrega ?: para que re.findall reciba correctamente strings y no tuplas
+#La segunda opcion acepta numeros que empiezan con punto: .5
 #Identificador de variables
 IDENTIFICADOR = r"[a-zA-Z_]{1}[a-z_A-Z.0-9]*"
 
